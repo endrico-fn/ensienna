@@ -1,0 +1,37 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+
+const paintings = await getCollection('paintings');
+// Sort: Featured first, then by date descending
+const sortedPaintings = paintings.sort((a, b) => {
+  if (a.data.isFeatured && !b.data.isFeatured) return -1;
+  if (!a.data.isFeatured && b.data.isFeatured) return 1;
+  return b.data.date.getTime() - a.data.date.getTime();
+});
+---
+
+<Base title="Gallery — burnsienna">
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+      {sortedPaintings.map((painting) => (
+        <a href={`/gallery/${painting.id}`} class="group">
+          <div class="aspect-[4/5] overflow-hidden bg-[#121212] mb-4">
+            <Image 
+              src={painting.data.image} 
+              alt={painting.data.title}
+              class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out scale-100 group-hover:scale-105"
+            />
+          </div>
+          <h3 class="text-sm tracking-widest uppercase text-white/80 group-hover:text-sienna transition-colors duration-300">
+            {painting.data.title}
+          </h3>
+          <p class="text-[10px] tracking-widest uppercase text-white/30 mt-1">
+            {painting.data.medium} &middot; {painting.data.date.getFullYear()}
+          </p>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>

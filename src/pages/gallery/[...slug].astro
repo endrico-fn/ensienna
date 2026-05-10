@@ -1,0 +1,38 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const paintings = await getCollection('paintings');
+  return paintings.map(painting => ({
+    params: { slug: painting.id },
+    props: { painting },
+  }));
+}
+
+const { painting } = Astro.props;
+const { Content } = await render(painting);
+---
+
+<Base title={`${painting.data.title} — burnsienna`}>
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div>
+        <img 
+          src={painting.data.image.src} 
+          alt={painting.data.title}
+          class="w-full shadow-2xl"
+        />
+      </div>
+      <div>
+        <h1 class="text-4xl font-light serif mb-4">{painting.data.title}</h1>
+        <p class="text-white/40 tracking-widest uppercase text-xs mb-8">
+          {painting.data.medium} &middot; {painting.data.date.getFullYear()}
+        </p>
+        <div class="prose prose-invert">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
